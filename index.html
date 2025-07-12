@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>ASCII Donut</title>
+        <style>
+            body {
+                background: black;
+                color: chartreuse;
+                font-family: Consolas, 'Courier New', monospace;
+                white-space: pre;
+                font-size: 12px;
+                line-height: 12px;
+                overflow: hidden;
+                margin: 0;
+                height: 100vh;
+            }
+        </style>
+    </head>
+    <body>
+        <pre id="ascii" style="display: block; width: 522px; height: 480px; margin: auto;"></pre>
+        <script>
+            var iter = 0;
+            var colorInterval;
+            function s(e, t, n) {
+                let r = 2 * Math.PI
+                  , s = []
+                  , i = 0.0015 * e.time
+                  , o = 0.0017 * e.time
+                  , a = e.cols
+                  , l = e.rows
+                  , u = a / 2
+                  , d = l / 2
+                  , c = 50 * e.metrics.aspect
+                  , f = Math.cos(i)
+                  , h = Math.sin(i)
+                  , p = Math.cos(o)
+                  , g = Math.sin(o)
+                  , y = a * l;
+
+                for (let e = 0; e < y; e++) {
+                    n[e].char = " ";
+                    s[e] = 0;
+                }
+                for (let e = 0; e < r; e += 0.05) {
+                    let t = Math.cos(e)
+                      , i = Math.sin(e);
+                    for (let e = 0; e < r; e += 0.01) {
+                        let r = Math.sin(e)
+                          , o = Math.cos(e)
+                          , y = t + 2
+                          , v = 1 / (r * y * h + i * f + 5)
+                          , b = r * y * f - i * h
+                          , x = 0 | u + 50 * v * (o * y * p - b * g)
+                          , j = 0 | d + c * v * (o * y * g + b * p)
+                          , _ = x + a * j
+                          , w = 0 | 8 * ((i * h - r * t * f) * p - r * t * h - i * f - o * t * g);
+                        if (j < l && j >= 0 && x >= 0 && x < a && v > s[_]) {
+                            s[_] = v;
+                            n[_].char = ".,-~:;=!*#$@"[w > 0 ? w : 0];
+                        }
+                    }
+                }
+            }
+            const cols = 80;
+            const rows = 40;
+            const aspect = 0.4;
+            let n = [];
+            for (let i = 0; i < cols * rows; i++) {
+                n.push({
+                    char: " "
+                });
+            }
+            const output = document.getElementById("ascii");
+            function render() {
+                s({
+                    time: performance.now(),
+                    cols: cols,
+                    rows: rows,
+                    metrics: {
+                        aspect: aspect
+                    }
+                }, null, n);
+                let text = "";
+                for (let i = 0; i < n.length; i++) {
+                    text += n[i].char;
+                    if ((i + 1) % cols === 0) {
+                        text += "\n";
+                    }
+                }
+                output.textContent = text;
+                requestAnimationFrame(render);
+            }
+            function setRGB(pgrs) {
+                var color;
+                switch (true) {
+                case pgrs < 256:
+                    // green++ to rgb(255,255,0);
+                    var g = pgrs;
+                    if (g > 255) {
+                        g = 255
+                    }
+                    color = "rgb(255," + g + ",0)";
+                    break;
+                case pgrs >= 256 && pgrs < 512:
+                    //red-- to rgb(0,255,0);
+                    var rem = pgrs % 256;
+                    if (rem == 0) {
+                        color = "rgb(0,255,0)";
+                    } else {
+                        var r = 256 - rem;
+                        if (r > 255) {
+                            r = 255
+                        }
+                        color = "rgb(" + r + ",255,0)";
+                    }
+                    break;
+                case pgrs >= 512 && pgrs < 768:
+                    //blue++ to rgb(0,255,255);
+                    var b = pgrs % 256;
+                    if (b > 255) {
+                        b = 255
+                    }
+                    color = "rgb(0,255," + b + ")";
+                    break;
+                case pgrs >= 768 && pgrs < 1024:
+                    //green-- to rgb(0,0,255);
+                    var rem = pgrs % 256;
+                    if (rem == 0) {
+                        color = "rgb(0,0,255)";
+                    } else {
+                        var g = 256 - rem;
+                        if (g > 255) {
+                            g = 255
+                        }
+                        color = "rgb(0," + g + ",255)";
+                    }
+                    break;
+                case pgrs >= 1024 && pgrs < 1280:
+                    //red++ to rgb(255,0,255);
+                    var r = pgrs % 256;
+                    if (r > 255) {
+                        r = 255
+                    }
+                    color = "rgb(" + r + ",0,255)";
+                    break;
+                case pgrs >= 1280:
+                    //blue-- to rgb(255,0,0);
+                    var rem = pgrs % 256;
+                    if (rem == 0) {
+                        color = "rgb(255,0,0)";
+                    } else {
+                        var b = 256 - rem;
+                        if (b > 255) {
+                            b = 255
+                        }
+                        color = "rgb(255,0," + b + ")";
+                    }
+                    break;
+                }
+                document.body.style.color = color;
+            }
+            document.addEventListener("DOMContentLoaded", () => {
+                window.addEventListener("resize", () => {
+                    if (document.body.clientHeight > 480) {
+                        var m = (document.body.clientHeight - 480) / 2
+                        document.getElementById("ascii").style.marginTop = `${m}px`
+                        document.getElementById("ascii").style.marginBottom = `${m}px`
+                    }
+                });
+                if (document.body.clientHeight > 480) {
+                    var m = (document.body.clientHeight - 480) / 2
+                    document.getElementById("ascii").style.marginTop = `${m}px`
+                    document.getElementById("ascii").style.marginBottom = `${m}px`
+                }
+                colorInterval = setInterval( () => {
+                    setRGB(iter);
+                    iter++;
+                    if (iter > 1535) {
+                        iter = 0;
+                    }
+                }, 5);
+                render();
+            });
+        </script>
+    </body>
+</html>
